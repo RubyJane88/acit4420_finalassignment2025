@@ -1,29 +1,9 @@
-"""
-CourierOptimizer: Smart courier routing system for Oslo deliveries.
-
-COMMIT 1: Basic class structure and constants
-- Set up class with configuration constants
-- Initialize with empty state
-- Establish foundation for incremental development
-
-Following TDD principles - building step by step.
-"""
-
-# Only importing what we need for this commit
 from typing import Dict, List, Any
 
 
 class CourierOptimizer:
     """
-    Main courier optimization system for Oslo's NordicExpress service.
-    
-    This class will be built incrementally through TDD:
-    1. Basic structure (this commit)
-    2. Input validation helpers  
-    3. Single delivery validation
-    4. CSV processing functionality
-    5. Route optimization
-    """
+    Main courier optimization system for Oslo's NordicExpress service. """
     
     # Oslo geographic bounds - these define our service area
     # Real Oslo coordinates (approximately)
@@ -43,20 +23,96 @@ class CourierOptimizer:
     def __init__(self):
         """
         Initialize CourierOptimizer with empty state.
-        
-        In real development, you'd start simple like this,
-        then add complexity as needed in future commits.
         """
-        # Start with minimal state - we'll add more as we need it
         self.current_deliveries = []
         self.last_optimization_result = None
     
-    # Placeholder methods to satisfy our tests
-    # These will be implemented in subsequent commits
+    def _validate_weight(self, weight: float) -> List[str]:
+        """
+        Validate package weight against business rules.
+        """
+        warnings = []
+        
+        if weight > self.MAX_WEIGHT_KG:
+            warnings.append(f"Weight {weight}kg exceeds maximum {self.MAX_WEIGHT_KG}kg")
+        
+        if weight < 0:
+            warnings.append(f"Weight cannot be negative: {weight}kg")
+            
+        return warnings
     
+    def _validate_priority(self, priority: str) -> List[str]:
+        """
+        Validate priority level against allowed values.
+        
+        Args:
+            priority: Priority string (case-insensitive)
+            
+        Returns:
+            List of warning messages (empty if valid)
+        """
+        warnings = []
+        priority_upper = priority.upper() if priority else ''
+        
+        if priority_upper not in self.VALID_PRIORITIES:
+            valid_options = ', '.join(self.VALID_PRIORITIES)
+            warnings.append(f"Invalid priority '{priority}'. Must be: {valid_options}")
+            
+        return warnings
+    
+    def _validate_coordinates(self, latitude: float, longitude: float) -> List[str]:
+        """
+        Validate coordinates are within Oslo service area.
+        
+        Args:
+            latitude: Latitude coordinate
+            longitude: Longitude coordinate
+            
+        Returns:
+            List of warning messages (empty if valid)
+            
+         Note: Check if coordinates fall within Oslo's boundaries.
+        If outside, the delivery can't be serviced.
+        """
+        warnings = []
+        
+        # Check latitude bounds (North-South position)
+        if not (self.OSLO_LAT_MIN <= latitude <= self.OSLO_LAT_MAX):
+            warnings.append(
+                f"Latitude {latitude} outside Oslo bounds "
+                f"({self.OSLO_LAT_MIN}-{self.OSLO_LAT_MAX})"
+            )
+        
+        # Check longitude bounds (East-West position)  
+        if not (self.OSLO_LON_MIN <= longitude <= self.OSLO_LON_MAX):
+            warnings.append(
+                f"Longitude {longitude} outside Oslo bounds "
+                f"({self.OSLO_LON_MIN}-{self.OSLO_LON_MAX})"
+            )
+            
+        return warnings
+    
+    def _validate_customer_name(self, customer: str) -> List[str]:
+        """
+        Validate customer name is present and printable.
+        
+        Args:
+            customer: Customer name string
+            
+        Returns:
+            List of warning messages (empty if valid)
+        """
+        warnings = []
+        
+        if not customer or not customer.strip():
+            warnings.append("Customer name cannot be empty")
+        elif len(customer.strip()) < 2:
+            warnings.append("Customer name too short (minimum 2 characters)")
+            
+        return warnings
+
     def validate_delivery(self, delivery: Dict[str, Any]) -> Dict[str, Any]:
-        """Placeholder - will implement in commit 3."""
-        # Temporary implementation to pass tests
+        """Placeholder - will implement in commit 3 using the helpers above."""
         return {'is_valid': True, 'warnings': []}
     
     def process_csv_data(self, data) -> Dict[str, List[Dict]]:
@@ -68,10 +124,9 @@ class CourierOptimizer:
         return True
     
     def is_valid_optimization_criteria(self, criteria: str) -> bool:
-        """Placeholder - will implement in commit 5."""
+        """Placeholder - will implement in commit 5."""  
         return True
     
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
-        """Placeholder - will implement in commit 6."""
         return deliveries.copy() if deliveries else []
