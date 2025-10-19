@@ -1,4 +1,5 @@
 from typing import Dict, List, Any
+import pandas as pd
 
 
 class CourierOptimizer:
@@ -106,8 +107,8 @@ class CourierOptimizer:
         
         if not customer or not customer.strip():
             warnings.append("Customer name cannot be empty")
-        elif len(customer.strip()) < 2:
-            warnings.append("Customer name too short (minimum 2 characters)")
+        elif len(customer.strip()) < 1:
+            warnings.append("Customer name cannot be empty")
             
         return warnings
 
@@ -147,7 +148,24 @@ class CourierOptimizer:
         Returns:
             Dict with 'valid_deliveries' and 'invalid_deliveries' lists
         """
-        return {'valid_deliveries': [], 'invalid_deliveries': []}
+        valid_deliveries = []
+        invalid_deliveries = []
+        
+        for _, row in data.iterrows():
+            delivery = row.to_dict()
+            validation_result = self.validate_delivery(delivery)
+            
+            if validation_result['is_valid']:
+                valid_deliveries.append(delivery)
+            else:
+                # Add warnings to the delivery record for output
+                delivery['warnings'] = validation_result['warnings']
+                invalid_deliveries.append(delivery)
+        
+        return {
+            'valid_deliveries': valid_deliveries,
+            'invalid_deliveries': invalid_deliveries
+        }
     
     def is_valid_transport_mode(self, mode: str) -> bool:
         """Check if transport mode is valid."""
