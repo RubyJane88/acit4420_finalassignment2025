@@ -112,8 +112,30 @@ class CourierOptimizer:
         return warnings
 
     def validate_delivery(self, delivery: Dict[str, Any]) -> Dict[str, Any]:
-        """Placeholder - will implement in commit 3 using the helpers above."""
-        return {'is_valid': True, 'warnings': []}
+        """
+        Validate a single delivery entry against business requirements.
+        
+        Args:
+            delivery: Dict with keys: customer, latitude, longitude, priority, weight_kg
+            
+        Returns:
+            Dict with 'is_valid' (bool) and 'warnings' (list of str)
+        """
+        all_warnings = []
+        
+        # Use all validation helpers to collect warnings
+        all_warnings.extend(self._validate_weight(delivery.get('weight_kg', 0)))
+        all_warnings.extend(self._validate_priority(delivery.get('priority', '')))
+        all_warnings.extend(self._validate_coordinates(
+            delivery.get('latitude', 0), 
+            delivery.get('longitude', 0)
+        ))
+        all_warnings.extend(self._validate_customer_name(delivery.get('customer', '')))
+        
+        return {
+            'is_valid': len(all_warnings) == 0,
+            'warnings': all_warnings
+        }
     
     def process_csv_data(self, data) -> Dict[str, List[Dict]]:
         """Placeholder - will implement in commit 4."""
