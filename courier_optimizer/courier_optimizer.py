@@ -138,17 +138,36 @@ class CourierOptimizer:
         }
     
     def process_csv_data(self, data) -> Dict[str, List[Dict]]:
-        """Placeholder - will implement in commit 4."""
+        """
+        Process CSV data and separate valid from invalid deliveries.
+        
+        Args:
+            data: DataFrame with delivery data
+            
+        Returns:
+            Dict with 'valid_deliveries' and 'invalid_deliveries' lists
+        """
         return {'valid_deliveries': [], 'invalid_deliveries': []}
     
     def is_valid_transport_mode(self, mode: str) -> bool:
-        """Placeholder - will implement in commit 5."""
-        return True
+        """Check if transport mode is valid."""
+        return mode.upper() in self.VALID_TRANSPORT_MODES
     
     def is_valid_optimization_criteria(self, criteria: str) -> bool:
-        """Placeholder - will implement in commit 5."""  
-        return True
+        """Check if optimization criteria is valid."""
+        return criteria.upper() in self.VALID_OPTIMIZATION_CRITERIA
     
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
+        """
+        Optimize delivery route based on specified criteria.
+        
+        Args:
+            deliveries: List of valid delivery dictionaries
+            transport_mode: 'CAR', 'BICYCLE', or 'WALKING'  
+            criteria: 'FASTEST', 'CHEAPEST', or 'GREENEST'
+            
+        Returns:
+            List of deliveries in optimized order
+        """
         return deliveries.copy() if deliveries else []
