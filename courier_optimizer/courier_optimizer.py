@@ -271,7 +271,10 @@ class CourierOptimizer:
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
         """
-        Optimize delivery route based on specified criteria.
+        Optimize delivery route by sorting based on priority and proximity.
+        
+        Sort by priority first (HIGH > MEDIUM > LOW),
+        then by distance from depot for deliveries with same priority.
         
         Args:
             deliveries: List of valid delivery dictionaries
@@ -281,4 +284,27 @@ class CourierOptimizer:
         Returns:
             List of deliveries in optimized order
         """
-        return deliveries.copy() if deliveries else []
+        if not deliveries:
+            return []
+        
+        if len(deliveries) == 1:
+            return deliveries.copy()
+        
+        # Depot location (Oslo City Hall)
+        depot_lat = 59.9114
+        depot_lon = 10.7343
+        
+        # Priority ranking for sorting
+        priority_rank = {'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}
+        
+        # Sort by priority first, then by distance from depot
+        sorted_deliveries = sorted(
+            deliveries,
+            key=lambda d: (
+                priority_rank.get(d.get('priority', 'LOW').upper(), 3),
+                self.calculate_distance(depot_lat, depot_lon, 
+                                       d['latitude'], d['longitude'])
+            )
+        )
+        
+        return sorted_deliveries
