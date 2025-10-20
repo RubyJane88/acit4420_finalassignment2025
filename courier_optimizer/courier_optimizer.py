@@ -1,5 +1,6 @@
 from typing import Dict, List, Any
 import pandas as pd
+from geopy.distance import geodesic
 
 
 class CourierOptimizer:
@@ -174,6 +175,25 @@ class CourierOptimizer:
     def is_valid_optimization_criteria(self, criteria: str) -> bool:
         """Check if optimization criteria is valid."""
         return criteria.upper() in self.VALID_OPTIMIZATION_CRITERIA
+    
+    def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """
+        Calculate distance between two GPS coordinates.
+        
+        Uses geopy's geodesic calculation for more accurate distance measurements
+        
+        Args:
+            lat1: Latitude of first point
+            lon1: Longitude of first point
+            lat2: Latitude of second point
+            lon2: Longitude of second point
+            
+        Returns:
+            Distance in kilometers
+        """
+        point1 = (lat1, lon1)
+        point2 = (lat2, lon2)
+        return geodesic(point1, point2).kilometers
     
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
