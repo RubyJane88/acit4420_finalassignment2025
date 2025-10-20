@@ -22,6 +22,25 @@ class CourierOptimizer:
     # Physical constraints
     MAX_WEIGHT_KG = 25.0  # Maximum package weight
     
+    # Transport mode parameters (speed in km/h, cost in NOK/km, CO2 in g/km)
+    TRANSPORT_PARAMS = {
+        'CAR': {
+            'speed_kmh': 50,
+            'cost_per_km': 4.0,
+            'co2_g_per_km': 120
+        },
+        'BICYCLE': {
+            'speed_kmh': 15,
+            'cost_per_km': 0.0,
+            'co2_g_per_km': 0
+        },
+        'WALKING': {
+            'speed_kmh': 5,
+            'cost_per_km': 0.0,
+            'co2_g_per_km': 0
+        }
+    }
+    
     def __init__(self):
         """
         Initialize CourierOptimizer with empty state.
@@ -194,6 +213,60 @@ class CourierOptimizer:
         point1 = (lat1, lon1)
         point2 = (lat2, lon2)
         return geodesic(point1, point2).kilometers
+    
+    def calculate_travel_time(self, distance_km: float, transport_mode: str) -> float:
+        """
+        Calculate travel time in hours for a given distance and transport mode.
+        
+        Args:
+            distance_km: Distance in kilometers
+            transport_mode: Transport mode (CAR, BICYCLE, WALKING)
+            
+        Returns:
+            Travel time in hours
+        """
+        mode = transport_mode.upper()
+        if mode not in self.TRANSPORT_PARAMS:
+            raise ValueError(f"Invalid transport mode: {transport_mode}")
+        
+        speed = self.TRANSPORT_PARAMS[mode]['speed_kmh']
+        return distance_km / speed
+    
+    def calculate_cost(self, distance_km: float, transport_mode: str) -> float:
+        """
+        Calculate cost in NOK for a given distance and transport mode.
+        
+        Args:
+            distance_km: Distance in kilometers
+            transport_mode: Transport mode (CAR, BICYCLE, WALKING)
+            
+        Returns:
+            Cost in NOK
+        """
+        mode = transport_mode.upper()
+        if mode not in self.TRANSPORT_PARAMS:
+            raise ValueError(f"Invalid transport mode: {transport_mode}")
+        
+        cost_per_km = self.TRANSPORT_PARAMS[mode]['cost_per_km']
+        return distance_km * cost_per_km
+    
+    def calculate_co2(self, distance_km: float, transport_mode: str) -> float:
+        """
+        Calculate CO2 emissions in grams for a given distance and transport mode.
+        
+        Args:
+            distance_km: Distance in kilometers
+            transport_mode: Transport mode (CAR, BICYCLE, WALKING)
+            
+        Returns:
+            CO2 emissions in grams
+        """
+        mode = transport_mode.upper()
+        if mode not in self.TRANSPORT_PARAMS:
+            raise ValueError(f"Invalid transport mode: {transport_mode}")
+        
+        co2_per_km = self.TRANSPORT_PARAMS[mode]['co2_g_per_km']
+        return distance_km * co2_per_km
     
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
