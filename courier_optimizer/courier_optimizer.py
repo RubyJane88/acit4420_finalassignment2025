@@ -308,3 +308,66 @@ class CourierOptimizer:
         )
         
         return sorted_deliveries
+    
+    def calculate_route_metrics(self, route: List[Dict], transport_mode: str) -> Dict[str, float]:
+        """
+        Calculate total metrics for a delivery route.
+        
+        Calculates the total distance, time, cost, and CO2 emissions for traveling
+        the entire route from depot through all deliveries and back to depot.
+        
+        Args:
+            route: List of delivery dictionaries in route order
+            transport_mode: Transport mode to use (CAR, BICYCLE, WALKING)
+            
+        Returns:
+            Dictionary containing:
+                - total_distance_km: Total distance in kilometers
+                - total_time_hours: Total travel time in hours
+                - total_cost_nok: Total cost in Norwegian Kroner
+                - total_co2_grams: Total CO2 emissions in grams
+        """
+        if not route:
+            return {
+                'total_distance_km': 0.0,
+                'total_time_hours': 0.0,
+                'total_cost_nok': 0.0,
+                'total_co2_grams': 0.0
+            }
+        
+        # Depot location (Oslo City Hall)
+        depot_lat = 59.9114
+        depot_lon = 10.7343
+        
+        total_distance = 0.0
+        current_lat = depot_lat
+        current_lon = depot_lon
+        
+        # Calculate distance through all deliveries
+        for delivery in route:
+            distance = self.calculate_distance(
+                current_lat, current_lon,
+                delivery['latitude'], delivery['longitude']
+            )
+            total_distance += distance
+            current_lat = delivery['latitude']
+            current_lon = delivery['longitude']
+        
+        # Return to depot
+        distance_back = self.calculate_distance(
+            current_lat, current_lon,
+            depot_lat, depot_lon
+        )
+        total_distance += distance_back
+        
+        # Calculate metrics based on total distance
+        total_time = self.calculate_travel_time(total_distance, transport_mode)
+        total_cost = self.calculate_cost(total_distance, transport_mode)
+        total_co2 = self.calculate_co2(total_distance, transport_mode)
+        
+        return {
+            'total_distance_km': round(total_distance, 2),
+            'total_time_hours': round(total_time, 2),
+            'total_cost_nok': round(total_cost, 2),
+            'total_co2_grams': round(total_co2, 2)
+        }
