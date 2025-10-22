@@ -1,6 +1,7 @@
 from typing import Dict, List, Any
 import pandas as pd
 from geopy.distance import geodesic
+from .logger import get_logger, timer
 
 
 class CourierOptimizer:
@@ -45,8 +46,12 @@ class CourierOptimizer:
         """
         Initialize CourierOptimizer with empty state.
         """
+        self.logger = get_logger()
+        
         self.current_deliveries = []
         self.last_optimization_result = None
+        
+        self.logger.info("CourierOptimizer instance created")
     
     def _validate_weight(self, weight: float) -> List[str]:
         """
@@ -158,6 +163,7 @@ class CourierOptimizer:
             'warnings': all_warnings
         }
     
+    @timer
     def process_csv_data(self, data) -> Dict[str, List[Dict]]:
         """
         Process CSV data and separate valid from invalid deliveries.
@@ -168,6 +174,8 @@ class CourierOptimizer:
         Returns:
             Dict with 'valid_deliveries' and 'invalid_deliveries' lists
         """
+        self.logger.info(f"Processing {len(data)} deliveries")
+        
         valid_deliveries = []
         invalid_deliveries = []
         
@@ -181,6 +189,11 @@ class CourierOptimizer:
                 # Add warnings to the delivery record for output
                 delivery['warnings'] = validation_result['warnings']
                 invalid_deliveries.append(delivery)
+        
+        self.logger.info(f"Validation complete: {len(valid_deliveries)} valid, {len(invalid_deliveries)} invalid")
+        
+        if invalid_deliveries:
+            self.logger.warning(f"Found {len(invalid_deliveries)} invalid deliveries")
         
         return {
             'valid_deliveries': valid_deliveries,
@@ -268,6 +281,7 @@ class CourierOptimizer:
         co2_per_km = self.TRANSPORT_PARAMS[mode]['co2_g_per_km']
         return distance_km * co2_per_km
     
+    @timer
     def optimize_route(self, deliveries: List[Dict], transport_mode: str, 
                       criteria: str) -> List[Dict]:
         """
@@ -284,6 +298,9 @@ class CourierOptimizer:
         Returns:
             List of deliveries in optimized order
         """
+        self.logger.info(f"Optimizing route for {len(deliveries)} deliveries")
+        self.logger.info(f"Transport: {transport_mode}, Criteria: {criteria}")
+        
         if not deliveries:
             return []
         
@@ -306,6 +323,8 @@ class CourierOptimizer:
                                        d['latitude'], d['longitude'])
             )
         )
+        
+        self.logger.info("Route optimization complete")
         
         return sorted_deliveries
     
@@ -372,6 +391,7 @@ class CourierOptimizer:
             'total_co2_grams': round(total_co2, 2)
         }
     
+    @timer
     def read_deliveries_csv(self, filepath: str) -> pd.DataFrame:
         """
         Read deliveries from CSV file.
@@ -386,6 +406,8 @@ class CourierOptimizer:
             FileNotFoundError: If file doesn't exist
             ValueError: If CSV has invalid format
         """
+        self.logger.info(f"Reading CSV from: {filepath}")
+        
         try:
             df = pd.read_csv(filepath)
             
@@ -396,6 +418,8 @@ class CourierOptimizer:
             if missing_columns:
                 raise ValueError(f"CSV missing required columns: {missing_columns}")
             
+            self.logger.info(f"Successfully read {len(df)} deliveries from CSV")
+            
             return df
             
         except FileNotFoundError:
@@ -405,6 +429,7 @@ class CourierOptimizer:
         except Exception as e:
             raise ValueError(f"Error reading CSV file: {str(e)}")
     
+    @timer
     def write_route_csv(self, route: List[Dict], metrics: Dict[str, float], 
                        filepath: str, transport_mode: str) -> None:
         """
@@ -416,6 +441,8 @@ class CourierOptimizer:
             filepath: Output CSV file path
             transport_mode: Transport mode used
         """
+        self.logger.info(f"Writing route to: {filepath}")
+        
         if not route:
             # Write empty file with headers only
             df = pd.DataFrame(columns=['stop_number', 'customer', 'latitude', 'longitude', 
@@ -465,6 +492,8 @@ class CourierOptimizer:
         # Create DataFrame and save
         df = pd.DataFrame(route_data)
         df.to_csv(filepath, index=False)
+        
+        self.logger.info(f"Successfully wrote {len(route)} deliveries to {filepath}")
         
         print(f"\n✅ Route saved to: {filepath}")
         print(f"   Transport mode: {transport_mode}")

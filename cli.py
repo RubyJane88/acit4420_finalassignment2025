@@ -5,6 +5,7 @@ Connecting to CourierOptimizer class to actually process deliveries.
 """
 
 from courier_optimizer.courier_optimizer import CourierOptimizer
+from courier_optimizer.logger import get_logger, timer
 import os
 
 def display_main_menu():
@@ -70,6 +71,7 @@ def select_criteria():
         else:
             print("❌ Invalid choice! Please enter 1, 2, or 3.")
 
+@timer
 def process_deliveries(transport_mode, criteria):
     """Process deliveries with selected transport mode and criteria."""
     print("\n" + "="*60)
@@ -149,25 +151,39 @@ def process_deliveries(transport_mode, criteria):
 
 def main():
     """Main CLI loop."""
+    logger = get_logger()
+    
+    logger.info("="*60)
+    logger.info("CourierOptimizer CLI Started")
+    logger.info("="*60)
+    
     print("\n👋 Welcome to CourierOptimizer!")
     
     while True:
         display_main_menu()
         choice = get_user_choice()
         
+        logger.info(f"User selected menu option: {choice}")
+        
         if choice == "1":
             # Get transport mode
             transport_mode = select_transport_mode()
+            logger.info(f"User selected transport mode: {transport_mode}")
             print(f"\n✅ Selected transport mode: {transport_mode}")
             
             # Get criteria
             criteria = select_criteria()
+            logger.info(f"User selected criteria: {criteria}")
             print(f"✅ Selected criteria: {criteria}")
             
             # Process deliveries with selections
             process_deliveries(transport_mode, criteria)
             
         elif choice == "2":
+            logger.info("User chose to exit")
+            logger.info("CourierOptimizer CLI Ended")
+            logger.info("="*60)
+            
             print("\n👋 Thank you for using CourierOptimizer!")
             break
         else:
