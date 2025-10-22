@@ -1,0 +1,8 @@
+stop_number,customer,latitude,longitude,priority,weight_kg,distance_km,cumulative_distance_km,eta_hours,cost_nok,co2_grams
+1,Robert John,59.9139,10.7522,HIGH,15.5,1.04,1.04,0.02,4.16,124.74
+2,EmptyName,59.9,10.75,HIGH,5.0,1.55,2.59,0.03,6.21,186.42
+3,Riva Jena,59.95,10.85,HIGH,12.0,7.89,10.49,0.16,31.57,947.23
+4,Rhea Jona,59.92,10.75,MEDIUM,8.0,6.51,17.0,0.13,26.06,781.66
+5,Rizele Joy,59.85,10.65,MEDIUM,20.0,9.6,26.6,0.19,38.4,1152.08
+6,Kairo Juan,59.93,10.78,LOW,3.5,11.51,38.11,0.23,46.03,1380.83
+7,Rina Judea,59.88,10.7,LOW,5.0,7.15,45.25,0.14,28.59,857.58

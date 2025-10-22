@@ -371,3 +371,139 @@ class CourierOptimizer:
             'total_cost_nok': round(total_cost, 2),
             'total_co2_grams': round(total_co2, 2)
         }
+    
+    def read_deliveries_csv(self, filepath: str) -> pd.DataFrame:
+        """
+        Read deliveries from CSV file.
+        
+        Args:
+            filepath: Path to deliveries CSV file
+            
+        Returns:
+            DataFrame with delivery data
+            
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            ValueError: If CSV has invalid format
+        """
+        try:
+            df = pd.read_csv(filepath)
+            
+            # Check required columns
+            required_columns = {'customer', 'latitude', 'longitude', 'priority', 'weight_kg'}
+            missing_columns = required_columns - set(df.columns)
+            
+            if missing_columns:
+                raise ValueError(f"CSV missing required columns: {missing_columns}")
+            
+            return df
+            
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Deliveries file not found: {filepath}")
+        except pd.errors.EmptyDataError:
+            raise ValueError(f"CSV file is empty: {filepath}")
+        except Exception as e:
+            raise ValueError(f"Error reading CSV file: {str(e)}")
+    
+    def write_route_csv(self, route: List[Dict], metrics: Dict[str, float], 
+                       filepath: str, transport_mode: str) -> None:
+        """
+        Write optimized route to CSV file with detailed metrics.
+        
+        Args:
+            route: List of deliveries in optimized order
+            metrics: Dictionary with total route metrics
+            filepath: Output CSV file path
+            transport_mode: Transport mode used
+        """
+        if not route:
+            # Write empty file with headers only
+            df = pd.DataFrame(columns=['stop_number', 'customer', 'latitude', 'longitude', 
+                                      'priority', 'weight_kg', 'distance_km', 'cumulative_distance_km',
+                                      'eta_hours', 'cost_nok', 'co2_grams'])
+            df.to_csv(filepath, index=False)
+            return
+        
+        # Depot location
+        depot_lat = 59.9114
+        depot_lon = 10.7343
+        
+        # Build route data with cumulative metrics
+        route_data = []
+        cumulative_distance = 0.0
+        prev_lat, prev_lon = depot_lat, depot_lon
+        
+        for i, delivery in enumerate(route, 1):
+            # Distance from previous point
+            segment_distance = self.calculate_distance(
+                prev_lat, prev_lon,
+                delivery['latitude'], delivery['longitude']
+            )
+            cumulative_distance += segment_distance
+            
+            # Calculate segment metrics
+            segment_time = self.calculate_travel_time(segment_distance, transport_mode)
+            segment_cost = self.calculate_cost(segment_distance, transport_mode)
+            segment_co2 = self.calculate_co2(segment_distance, transport_mode)
+            
+            route_data.append({
+                'stop_number': i,
+                'customer': delivery['customer'],
+                'latitude': delivery['latitude'],
+                'longitude': delivery['longitude'],
+                'priority': delivery['priority'],
+                'weight_kg': delivery['weight_kg'],
+                'distance_km': round(segment_distance, 2),
+                'cumulative_distance_km': round(cumulative_distance, 2),
+                'eta_hours': round(segment_time, 2),
+                'cost_nok': round(segment_cost, 2),
+                'co2_grams': round(segment_co2, 2)
+            })
+            
+            prev_lat, prev_lon = delivery['latitude'], delivery['longitude']
+        
+        # Create DataFrame and save
+        df = pd.DataFrame(route_data)
+        df.to_csv(filepath, index=False)
+        
+        print(f"\n✅ Route saved to: {filepath}")
+        print(f"   Transport mode: {transport_mode}")
+        print(f"   Total stops: {len(route)}")
+        print(f"   Total distance: {metrics['total_distance_km']} km")
+        print(f"   Total time: {metrics['total_time_hours']} hours ({metrics['total_time_hours']*60:.0f} minutes)")
+        print(f"   Total cost: {metrics['total_cost_nok']} NOK")
+        print(f"   Total CO2: {metrics['total_co2_grams']} grams ({metrics['total_co2_grams']/1000:.2f} kg)")
+    
+    def write_rejected_csv(self, invalid_deliveries: List[Dict], filepath: str) -> None:
+        """
+        Write rejected deliveries to CSV file with warning messages.
+        
+        Args:
+            invalid_deliveries: List of invalid delivery dictionaries with warnings
+            filepath: Output CSV file path
+        """
+        if not invalid_deliveries:
+            # Write empty file with headers
+            df = pd.DataFrame(columns=['customer', 'latitude', 'longitude', 
+                                      'priority', 'weight_kg', 'warnings'])
+            df.to_csv(filepath, index=False)
+            print(f"\n✅ No rejected deliveries")
+            return
+        
+        # Prepare data with warnings as string
+        rejected_data = []
+        for delivery in invalid_deliveries:
+            rejected_data.append({
+                'customer': delivery.get('customer', ''),
+                'latitude': delivery.get('latitude', ''),
+                'longitude': delivery.get('longitude', ''),
+                'priority': delivery.get('priority', ''),
+                'weight_kg': delivery.get('weight_kg', ''),
+                'warnings': ' | '.join(delivery.get('warnings', []))
+            })
+        
+        df = pd.DataFrame(rejected_data)
+        df.to_csv(filepath, index=False)
+        
+        print(f"\n⚠️  Rejected deliveries saved to: {filepath}")
+        print(f"   Total rejected: {len(invalid_deliveries)}")

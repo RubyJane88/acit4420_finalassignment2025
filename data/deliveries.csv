@@ -1,0 +1,10 @@
+customer,latitude,longitude,priority,weight_kg
+Robert John,59.9139,10.7522,HIGH,15.5
+Rhea Jona,59.9200,10.7500,MEDIUM,8.0
+Rina Judea,59.8800,10.7000,LOW,5.0
+Riva Jena,59.9500,10.8500,HIGH,12.0
+Rizele Joy,59.8500,10.6500,MEDIUM,20.0
+Kairo Juan,59.9300,10.7800,LOW,3.5
+Isaac Rey,60.5,11.0,URGENT,30.0
+TooHeavy,59.92,10.76,LOW,28.
+EmptyName,59.90,10.75,HIGH,5.0
