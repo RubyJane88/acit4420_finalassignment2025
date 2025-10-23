@@ -58,4 +58,39 @@ class TestCellOperations:
             grid.get_cell(-1, 0)
 
 
-# We'll add neighbor counting tests next...
+class TestNeighborCounting:
+    """Test neighbor counting logic (critical for Conway's rules)."""
+    
+    def test_no_neighbors(self):
+        """Cell with no living neighbors should count 0."""
+        grid = Grid(5, 5)
+        assert grid.count_neighbors(2, 2) == 0
+    
+    def test_one_neighbor(self):
+        """Cell with one living neighbor should count 1."""
+        grid = Grid(5, 5)
+        grid.set_cell(1, 1, True)  # Set neighbor alive
+        assert grid.count_neighbors(2, 2) == 1
+    
+    def test_all_neighbors_alive(self):
+        """Cell surrounded by all alive cells should count 8."""
+        grid = Grid(5, 5)
+        # Set all 8 neighbors alive around cell (2,2)
+        for dy in [-1, 0, 1]:
+            for dx in [-1, 0, 1]:
+                if dx == 0 and dy == 0:
+                    continue  # Skip the center cell
+                grid.set_cell(2 + dx, 2 + dy, True)
+        
+        assert grid.count_neighbors(2, 2) == 8
+    
+    def test_corner_wrapping(self):
+        """Corner cells should wrap around edges (toroidal grid)."""
+        grid = Grid(5, 5)
+        # Place a cell at bottom-right corner
+        grid.set_cell(4, 4, True)
+        
+        # Top-left corner should see it as a neighbor due to wrapping
+        assert grid.count_neighbors(0, 0) == 1
+
+
