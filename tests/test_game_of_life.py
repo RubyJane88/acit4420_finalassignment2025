@@ -153,6 +153,91 @@ class TestGameOfLifeEngine:
         assert game._apply_conway_rules(is_alive=False, neighbor_count=4) == False
 
 
-# Add more Conway's rules tests next...
+class TestNextGenerationIntegration:
+    """Test next_generation() method with various scenarios."""
+    
+    def test_empty_grid_stays_empty(self):
+        """Empty grid should remain empty after next_generation."""
+        game = GameOfLife(5, 5)
+        # Grid starts empty
+        assert game.get_living_cells() == 0
+        assert game.get_generation() == 0
+        
+        game.next_generation()
+        
+        # Should still be empty (no births possible)
+        assert game.get_living_cells() == 0
+        assert game.get_generation() == 1
+    
+    def test_single_cell_dies(self):
+        """Single isolated cell should die from loneliness."""
+        game = GameOfLife(5, 5)
+        game.grid.set_cell(2, 2, True)  # Place one cell in center
+        
+        assert game.get_living_cells() == 1
+        assert game.get_generation() == 0
+        
+        game.next_generation()
+        
+        # Cell should die (0 neighbors < 2 = loneliness)
+        assert game.get_living_cells() == 0
+        assert game.get_generation() == 1
+        assert game.grid.get_cell(2, 2) == False
+    
+    def test_two_cells_both_die(self):
+        """Two adjacent cells should both die from loneliness."""
+        game = GameOfLife(5, 5)
+        game.grid.set_cell(2, 2, True)  # First cell
+        game.grid.set_cell(2, 3, True)  # Adjacent cell
+        
+        assert game.get_living_cells() == 2
+        
+        game.next_generation()
+        
+        # Both should die (each has only 1 neighbor < 2)
+        assert game.get_living_cells() == 0
+        assert game.get_generation() == 1
+    
+    def test_blinker_pattern_oscillation(self):
+        """Test the famous Blinker pattern oscillates correctly."""
+        game = GameOfLife(5, 5)
+        
+        # Set up horizontal blinker in center: ● ● ●
+        game.grid.set_cell(1, 2, True)  # Left
+        game.grid.set_cell(2, 2, True)  # Center  
+        game.grid.set_cell(3, 2, True)  # Right
+        
+        assert game.get_living_cells() == 3
+        
+        # After 1 generation: should become vertical blinker
+        game.next_generation()
+        
+        assert game.get_living_cells() == 3  # Still 3 cells
+        assert game.get_generation() == 1
+        
+        # Check it's now vertical: center column
+        assert game.grid.get_cell(2, 1) == True  # Above center
+        assert game.grid.get_cell(2, 2) == True  # Center (survives) 
+        assert game.grid.get_cell(2, 3) == True  # Below center
+        
+        # Horizontal positions should be dead
+        assert game.grid.get_cell(1, 2) == False  # Left
+        assert game.grid.get_cell(3, 2) == False  # Right
+        
+        # After another generation: should return to horizontal
+        game.next_generation()
+        
+        assert game.get_living_cells() == 3  # Still 3 cells
+        assert game.get_generation() == 2
+        
+        # Should be back to horizontal
+        assert game.grid.get_cell(1, 2) == True   # Left
+        assert game.grid.get_cell(2, 2) == True   # Center
+        assert game.grid.get_cell(3, 2) == True   # Right
+        
+        # Vertical positions should be dead  
+        assert game.grid.get_cell(2, 1) == False  # Above
+        assert game.grid.get_cell(2, 3) == False  # Below
+
 
 
