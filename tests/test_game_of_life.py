@@ -5,6 +5,7 @@ Following TDD approach: Write tests first, then implement features.
 
 import pytest
 from game_of_life.grid import Grid
+from game_of_life.game_engine import GameOfLife
 
 
 class TestGridInitialization:
@@ -92,5 +93,66 @@ class TestNeighborCounting:
         
         # Top-left corner should see it as a neighbor due to wrapping
         assert grid.count_neighbors(0, 0) == 1
+
+
+class TestGameOfLifeEngine:
+    """Test Conway's Game of Life rules engine."""
+    
+    def test_game_initialization(self):
+        """Game should initialize with empty grid at generation 0."""
+        game = GameOfLife(10, 10)
+        assert game.get_generation() == 0
+        assert game.get_living_cells() == 0
+        assert game.width == 10
+        assert game.height == 10
+    
+    def test_conway_rule_survival(self):
+        """Living cell with 2-3 neighbors should survive."""
+        game = GameOfLife(5, 5)
+        
+        # Test with 2 neighbors (should survive)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=2) == True
+        
+        # Test with 3 neighbors (should survive)  
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=3) == True
+    
+    def test_conway_rule_death_loneliness(self):
+        """Living cell with <2 neighbors should die."""
+        game = GameOfLife(5, 5)
+        
+        # Test with 0 neighbors (should die)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=0) == False
+        
+        # Test with 1 neighbor (should die)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=1) == False
+    
+    def test_conway_rule_death_overcrowding(self):
+        """Living cell with >3 neighbors should die."""
+        game = GameOfLife(5, 5)
+        
+        # Test with 4 neighbors (should die)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=4) == False
+        
+        # Test with 5 neighbors (should die)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=5) == False
+        
+        # Test with 8 neighbors (should die)
+        assert game._apply_conway_rules(is_alive=True, neighbor_count=8) == False
+    
+    def test_conway_rule_birth(self):
+        """Dead cell with exactly 3 neighbors should become alive."""
+        game = GameOfLife(5, 5)
+        
+        # Test with 3 neighbors (should be born)
+        assert game._apply_conway_rules(is_alive=False, neighbor_count=3) == True
+        
+        # Test with other neighbor counts (should stay dead)
+        assert game._apply_conway_rules(is_alive=False, neighbor_count=0) == False
+        assert game._apply_conway_rules(is_alive=False, neighbor_count=1) == False
+        assert game._apply_conway_rules(is_alive=False, neighbor_count=2) == False
+        assert game._apply_conway_rules(is_alive=False, neighbor_count=4) == False
+
+
+# Add more Conway's rules tests next...
 
 
