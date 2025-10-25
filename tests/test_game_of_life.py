@@ -240,4 +240,81 @@ class TestNextGenerationIntegration:
         assert game.grid.get_cell(2, 3) == False  # Below
 
 
+class TestVisualizer:
+    """Test the ASCII visualization system for Conway's Game of Life."""
+    
+    def test_visualizer_imports(self):
+        """Visualizer class should be importable."""
+        from game_of_life.visualizer import Visualizer
+        visualizer = Visualizer()
+        assert visualizer is not None
+    
+    def test_display_empty_grid(self):
+        """Should display empty 3x3 grid with dead cell symbols."""
+        from game_of_life.visualizer import Visualizer
+        grid = Grid(3, 3)
+        visualizer = Visualizer()
+        
+        output = visualizer.display_grid(grid, generation=0)
+        
+        # Should contain dead cell symbols
+        assert "○" in output
+        # Should not contain alive cell symbols  
+        assert "●" not in output
+        # Should show generation counter
+        assert "Generation: 0" in output
+    
+    def test_display_grid_with_alive_cells(self):
+        """Should display grid with both alive and dead cells."""
+        from game_of_life.visualizer import Visualizer
+        grid = Grid(3, 3)
+        grid.set_cell(1, 1, True)  # Center cell alive
+        visualizer = Visualizer()
+        
+        output = visualizer.display_grid(grid, generation=5)
+        
+        # Should contain both symbols
+        assert "●" in output  # Alive cells
+        assert "○" in output  # Dead cells
+        # Should show generation
+        assert "Generation: 5" in output
+    
+    def test_display_statistics(self):
+        """Should display population statistics."""
+        from game_of_life.visualizer import Visualizer
+        grid = Grid(3, 3)
+        grid.set_cell(0, 0, True)
+        grid.set_cell(2, 2, True)
+        visualizer = Visualizer()
+        
+        output = visualizer.display_grid(grid, generation=1)
+        
+        # Should show population count
+        assert "Population: 2" in output
+        # Should show total cells
+        assert "9" in output  # 3x3 = 9 total cells
+    
+    def test_blinker_pattern_visualization(self):
+        """Should properly display the famous Blinker pattern."""
+        from game_of_life.visualizer import Visualizer
+        grid = Grid(5, 5)
+        
+        # Set up Blinker pattern (horizontal)
+        grid.set_cell(1, 2, True)
+        grid.set_cell(2, 2, True) 
+        grid.set_cell(3, 2, True)
+        
+        visualizer = Visualizer()
+        output = visualizer.display_grid(grid, generation=0)
+        
+        # Should show horizontal line of alive cells
+        lines = output.split('\n')
+        grid_lines = [line for line in lines if '●' in line or '○' in line]
+        assert len(grid_lines) == 5  # 5x5 grid
+        
+        # Middle row should have three alive cells
+        middle_row = grid_lines[2]
+        assert middle_row.count('●') == 3
+
+
 
