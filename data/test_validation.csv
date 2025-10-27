@@ -1,0 +1,11 @@
+customer,latitude,longitude,priority,weight_kg
+Valid Customer,59.9139,10.7522,HIGH,15.5
+,59.9200,10.7500,MEDIUM,8.0
+Outside Oslo,61.0000,12.0000,HIGH,5.0
+Invalid Priority,59.9300,10.7800,URGENT,3.5
+Too Heavy,59.9100,10.7600,HIGH,30.0
+Missing Weight,59.9000,10.7400,LOW,
+Negative Weight,59.8900,10.7300,MEDIUM,-5.0
+Invalid Coordinates,abc,xyz,HIGH,10.0
+South of Oslo,59.7000,10.7500,LOW,8.0
+East of Oslo,59.9000,11.0000,MEDIUM,12.0
