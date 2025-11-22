@@ -3,7 +3,7 @@ CourierOptimizer - Smart Courier Routing System
 
 A Python package for optimizing delivery routes based on multiple criteria:
 - Fastest total time
-- Lowest total cost  
+- Lowest total cost
 - Lowest CO2 emissions
 
 Candidate: [582]

@@ -6,7 +6,7 @@ Simple manual test for Conway's CLI blinking effect
 print("🎮 To see the Blinker pattern 'blinking' in the CLI:")
 print()
 print("1. Run: python conways_cli.py")
-print("2. Choose: 1 (Start New Simulation)")  
+print("2. Choose: 1 (Start New Simulation)")
 print("3. Choose: 1 (Blinker pattern)")
 print("4. Enter grid size: 7 x 7")
 print("5. Choose: 1 (Run Animation)")

@@ -1,3 +1,3 @@
 customer,latitude,longitude,priority,weight_kg,warnings
-Isaac Rey,60.5,11.0,URGENT,30.0,"Weight 30.0kg exceeds maximum 25.0kg | Invalid priority 'URGENT'. Must be: MEDIUM, HIGH, LOW | Latitude 60.5 outside Oslo bounds (59.8-60.0) | Longitude 11.0 outside Oslo bounds (10.6-10.9)"
+Isaac Rey,60.5,11.0,URGENT,30.0,"Weight 30.0kg exceeds maximum 25.0kg | Invalid priority 'URGENT'. Must be: HIGH, MEDIUM, LOW | Latitude 60.5 outside Oslo bounds (59.8-60.0) | Longitude 11.0 outside Oslo bounds (10.6-10.9)"
 TooHeavy,59.92,10.76,LOW,28.0,Weight 28.0kg exceeds maximum 25.0kg
