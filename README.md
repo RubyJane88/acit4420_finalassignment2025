@@ -65,13 +65,6 @@ python animated_demo.py
 
 ---
 
-### Part III: [TBD] 📋
-
-**Status:** Not started
-
-Details to be announced.
-
----
 
 ## 🚀 Installation
 
