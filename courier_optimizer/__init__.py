@@ -6,9 +6,9 @@ A Python package for optimizing delivery routes based on multiple criteria:
 - Lowest total cost  
 - Lowest CO2 emissions
 
-Author: [Ruby Jane Cabagnot]
+Candidate: [582]
 Course: ACIT 4420 Scripting 2
 """
 
 __version__ = "1.0.0"
-__author__ = "Ruby Jane"
+__author__ = "582"
